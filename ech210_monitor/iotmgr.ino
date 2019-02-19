@@ -1,4 +1,4 @@
-/*#define DEBUG_IOT*/
+#define DEBUG_IOT
 #ifdef DEBUG_IOT
  #define DEBUG_IOT_PRINT(x)  Serial.print (x)
  #define DEBUG_IOT_PRINTLN(x)  Serial.println (x)
@@ -13,6 +13,7 @@ void setupIOT(){
 
 void loopIOT(){
   if(WiFi.status()==WL_CONNECTED){
+    sendToThingsSpeak2();
     if(sensorUpdated){
       sendToThingsSpeak2();
       /**************************/

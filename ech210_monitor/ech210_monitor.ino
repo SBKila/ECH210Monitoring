@@ -10,12 +10,7 @@
 
 #include <Ticker.h>
 
-
-#include <SoftwareSerial.h>
-//#include <ESP8266ModbusMaster232.h>
 #include "secrets.h"
-
-
 
 
 // sensor data flag
@@ -63,13 +58,12 @@ int echMgrTickerPeriod = 10;
 int echSensorsReadstatus = 0;
 
 // Instantiate ModbusMaster object to target slave ID 1
-//ESP8266ModbusMaster232 echModule(ech210BAddress); //RX,TX D8,D7
+//ESP8266ModbusMaster232 echModule(ECH210BD_ADRESS); //RX,TX D8,D7
 
 /******************/
 /* DHT management */
 /******************/
 DHTesp dht; // Initialize DHT sensor
-int dhtPin = D5; //Pin number for DHT sensor data pin
 Ticker dhtTicker;
 int lastTemperature = -200;
 int lastHumidity = -200;

@@ -9,7 +9,7 @@
 
 void setupDHT(){
   // Initialize temperature sensor
-  dht.setup(dhtPin, DHTesp::DHT22);
+  dht.setup(DHT_PIN, DHTesp::DHT22);
   // read dht data each 20 seconde
   dhtTicker.attach(20, getDHT);
 }

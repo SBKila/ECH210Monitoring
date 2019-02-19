@@ -1,4 +1,4 @@
-#define DEBUG_MOD
+/*#define DEBUG_MOD*/
 #ifdef DEBUG_MOD
 #define DEBUG_MOD_PRINT(x)  Serial.print (x)
 #define DEBUG_MOD_PRINTLN(x)  Serial.println (x)
@@ -8,12 +8,12 @@
 #define DEBUG_MOD_PRINT(x)
 #define DEBUG_MOD_PRINTLN(x)
 #define DEBUG_MOD_PRINT_NUM(x,y)
-#define DEBUG_MOD_PRINTLN_NUM(x,y
+#define DEBUG_MOD_PRINTLN_NUM(x,y)
 #endif
 
-#include <SoftwareSerial.h>
+#include "SoftwareSerial8E1.h"
 // Modbus RTU pins   D7(13),D8(15)   RX,TX
-SoftwareSerial swSer(13, 15, false, 256);
+SoftwareSerial8E1 swSer(MODBUS_RX_PIN, MODBUS_TX_PIN);
 
 
 uint16_t _u16ReadAddress;                                    ///< slave register from which to read
@@ -92,6 +92,9 @@ void (*_idle)();
   @ingroup setup
 */
 void ESP8266ModbusMaster232_init(uint8_t u8MBSlave) {
+  // define pin modes for tx, rx:
+  pinMode(MODBUS_RX_PIN, INPUT);
+  pinMode(MODBUS_TX_PIN, OUTPUT);
   _u8SerialPort = 0;
   DEBUG_MOD_PRINT_NUM(u8MBSlave,HEX);
   _u8MBSlave = u8MBSlave;

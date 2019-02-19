@@ -37,7 +37,7 @@
 void setupECH() {
   DEBUG_ECH_PRINTLN("setup_echmgr");
 
-  ESP8266ModbusMaster232_init(ech210BAddress);
+  ESP8266ModbusMaster232_init(ECH210BD_ADRESS);
   
   // Initialize Modbus communication baud rate
   ESP8266ModbusMaster232_begin(9600);
@@ -102,6 +102,7 @@ void read_EchSensors() {
   DEBUG_ECH_PRINT(" sd4:");
   DEBUG_ECH_PRINTLN(sd4);
 
+  DEBUG_ECH_PRINTLN("ECH Reading DigitalInput ");
   result =  ESP8266ModbusMaster232_readHoldingRegisters(ADDR_DIGITAL_INPUT, 1);
   if(result!=0){
     DEBUG_ECH_PRINTLN("ECH Error reading ECHSensors");
@@ -110,7 +111,7 @@ void read_EchSensors() {
   digitalInput=ESP8266ModbusMaster232_getResponseBuffer(0);
   ESP8266ModbusMaster232_clearResponseBuffer();
   delay(Mdelay);
-  
+
   compressorIn=(0 != (digitalInput & MASK_DI_COMPRESSOR));
   boilerIn=(0 != (digitalInput & MASK_DI_BOILER));
   pumpIn=(0 != (digitalInput & MASK_DI_PUMP));
@@ -125,12 +126,9 @@ void read_EchSensors() {
   DEBUG_ECH_PRINT(" onstandbyIn:");
   DEBUG_ECH_PRINTLN(onstandbyIn);
   
+    
   
-  
-  
-  
-  
-  DEBUG_ECH_PRINTLN("ECH Reading DigitalInput ");
+  DEBUG_ECH_PRINTLN("ECH Reading DigitalOutput ");
   result =  ESP8266ModbusMaster232_readHoldingRegisters(ADDR_DIGITAL_OUTPUT, 1);
   if(result!=0){
     DEBUG_ECH_PRINTLN("ECH Error reading ECHSensors");
