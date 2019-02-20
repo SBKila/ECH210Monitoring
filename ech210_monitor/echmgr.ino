@@ -49,58 +49,61 @@ void setupECH() {
 int Mdelay = 200;
 // Read ECH Module sensor values
 void read_EchSensors() {
+  
+  sint16 value;
+
   DEBUG_ECH_PRINTLN("");
   DEBUG_ECH_PRINTLN("");
   DEBUG_ECH_PRINTLN("");
-  DEBUG_ECH_PRINTLN("ECH readECHSensors TP_WATERIN");
+
+  
+  DEBUG_ECH_PRINT("ECH Reading Analog Input");
   int result = ESP8266ModbusMaster232_readHoldingRegisters(TP_WATERIN, 1);
   if(result!=0){
-    DEBUG_ECH_PRINTLN("ECH Error reading ECHSensors");
+    DEBUG_ECH_PRINTLN("ECH Error reading TP_WATERIN");
     return;
   }
-  sd1=ESP8266ModbusMaster232_getResponseBuffer(0);
+  value=ESP8266ModbusMaster232_getResponseBuffer(0);
+  setSD1(value);
   ESP8266ModbusMaster232_clearResponseBuffer();
   delay(Mdelay);
-  
-  DEBUG_ECH_PRINTLN("ECH readECHSensors TP_WATEROUT");
+  DEBUG_ECH_PRINT("sd1:");
+  DEBUG_ECH_PRINT(value);
+
   result =  ESP8266ModbusMaster232_readHoldingRegisters(TP_WATEROUT, 1);
   if(result!=0){
-    DEBUG_ECH_PRINTLN("ECH Error reading ECHSensors");
+    DEBUG_ECH_PRINTLN("ECH Error reading TP_WATEROUT");
     return;
   }
-  sd2=ESP8266ModbusMaster232_getResponseBuffer(0);
+  value=ESP8266ModbusMaster232_getResponseBuffer(0);
+  setSD2(value);
   ESP8266ModbusMaster232_clearResponseBuffer();
   delay(Mdelay);
+  DEBUG_ECH_PRINT(" sd2:");
+  DEBUG_ECH_PRINT(value);
 
-  DEBUG_ECH_PRINTLN("ECH readECHSensors TP_CONDENSOR");
   result =  ESP8266ModbusMaster232_readHoldingRegisters(TP_CONDENSOR, 1);
   if(result!=0){
-    DEBUG_ECH_PRINTLN("ECH Error reading ECHSensors");
+    DEBUG_ECH_PRINTLN("ECH Error reading TP_CONDENSOR");
     return;
   }
-  sd3=ESP8266ModbusMaster232_getResponseBuffer(0);
+  value=ESP8266ModbusMaster232_getResponseBuffer(0);
   ESP8266ModbusMaster232_clearResponseBuffer();
   delay(Mdelay); 
+  DEBUG_ECH_PRINT(" sd3:");
+  DEBUG_ECH_PRINT(value);
 
-  DEBUG_ECH_PRINTLN("ECH readECHSensors TP_OUTDOOR");
   result =  ESP8266ModbusMaster232_readHoldingRegisters(TP_OUTDOOR, 1);
   if(result!=0){
-    DEBUG_ECH_PRINTLN("ECH Error reading ECHSensors");
+    DEBUG_ECH_PRINTLN("ECH Error reading TP_OUTDOOR");
     return;
   }
-  sd4=ESP8266ModbusMaster232_getResponseBuffer(0);
+  value=ESP8266ModbusMaster232_getResponseBuffer(0);
   ESP8266ModbusMaster232_clearResponseBuffer();
   delay(Mdelay); 
-
-  DEBUG_ECH_PRINT("ECH Reading ECHSensors ");
-  DEBUG_ECH_PRINT("sd1:");
-  DEBUG_ECH_PRINT(sd1);
-  DEBUG_ECH_PRINT(" sd2:");
-  DEBUG_ECH_PRINT(sd2);
-  DEBUG_ECH_PRINT(" sd3:");
-  DEBUG_ECH_PRINT(sd3);
   DEBUG_ECH_PRINT(" sd4:");
-  DEBUG_ECH_PRINTLN(sd4);
+  DEBUG_ECH_PRINT(value);
+  
 
   DEBUG_ECH_PRINTLN("ECH Reading DigitalInput ");
   result =  ESP8266ModbusMaster232_readHoldingRegisters(ADDR_DIGITAL_INPUT, 1);
@@ -125,8 +128,6 @@ void read_EchSensors() {
   DEBUG_ECH_PRINT(warmcoolIn);
   DEBUG_ECH_PRINT(" onstandbyIn:");
   DEBUG_ECH_PRINTLN(onstandbyIn);
-  
-    
   
   DEBUG_ECH_PRINTLN("ECH Reading DigitalOutput ");
   result =  ESP8266ModbusMaster232_readHoldingRegisters(ADDR_DIGITAL_OUTPUT, 1);

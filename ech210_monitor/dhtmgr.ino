@@ -25,15 +25,7 @@ void getDHT(){
     DEBUG_DHT_PRINT(humidity);
     DEBUG_DHT_PRINTLN("%");
 
-    if((-200==lastHumidity) || (abs(humidity-lastHumidity)>4)){
-      lastHumidity = humidity;
-      sensorUpdated=true;
-    }
+    setHumidity(humidity);
+    setTemperature(temperature);
     
-    if((-200==lastTemperature) || (abs(temperature-lastTemperature)!=0)){
-      lastTemperature = temperature;
-      sensorUpdated=true;
-    }
-
-    DEBUG_DHT_PRINTLN("DHT updated:"+sensorUpdated);  
 }

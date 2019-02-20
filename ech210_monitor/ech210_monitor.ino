@@ -13,10 +13,6 @@
 #include "secrets.h"
 
 
-// sensor data flag
-boolean sensorUpdated = false;
-
-
 /*******************/
 /* WIFI management */
 /*******************/
@@ -36,10 +32,9 @@ int8_t minutesTimeZone = 0;
 /******************/
 /* ECH management */
 /******************/
-sint16 sd1;
-sint16 sd2;
-sint16 sd3;
-sint16 sd4;
+#define ECH210BD_ADRESS 1
+#define MODBUS_RX_PIN D8
+#define MODBUS_TX_PIN D7
 int digitalInput;
 boolean compressorIn=false;
 boolean boilerIn=false;
@@ -63,10 +58,10 @@ int echSensorsReadstatus = 0;
 /******************/
 /* DHT management */
 /******************/
+#define DHT_PIN D5
 DHTesp dht; // Initialize DHT sensor
 Ticker dhtTicker;
-int lastTemperature = -200;
-int lastHumidity = -200;
+
 
 /******************/
 /* IOT management */
@@ -84,7 +79,7 @@ void setupDS() {
 }
 void loopDS() {
   // store sensors data still available
-  if (sensorUpdated) {
+  if (isDataUpdated()) {
     storeSensorData();
   }
 }
@@ -125,9 +120,6 @@ void loop() {
 
   loopNTP();
   loopIOT();
-
-
-
   loopDS();
 
   // reset first Wifi Connection Flag
