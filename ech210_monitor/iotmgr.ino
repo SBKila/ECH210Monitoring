@@ -8,6 +8,7 @@
 #endif
 
 void setupIOT(){
+  DEBUG_IOT_PRINTLN("setupIOT");
   ThingSpeak.begin(client);  // Initialize ThingSpeak
 }
 
@@ -18,7 +19,11 @@ void loopIOT(){
     }
   } 
 }
-
+void setField(unsigned int field, long value){
+  if(value!=-200){
+    ThingSpeak.setField(field, value);
+  }
+}
 void sendToThingsSpeak2(){
   DEBUG_IOT_PRINT("getting Measure Signal Strength");
   long rssi = WiFi.RSSI();
@@ -29,13 +34,13 @@ void sendToThingsSpeak2(){
   DEBUG_IOT_PRINTLN("getting Temperature");
   ThingSpeak.setField(3, String(getTemperature(), 1));
   DEBUG_IOT_PRINTLN("getting SD1");
-  ThingSpeak.setField(4, String(getSD1()));
+  setField(4, getSD1());
   DEBUG_IOT_PRINTLN("getting SD2");
-  ThingSpeak.setField(4, String(getSD2()));
+  setField(5, getSD2());
   DEBUG_IOT_PRINTLN("getting SD3");
-  ThingSpeak.setField(4, String(getSD3()));
+  setField(6, getSD3());
   DEBUG_IOT_PRINTLN("getting SD4");
-  ThingSpeak.setField(4, String(getSD4()));
+  setField(7, getSD4());
   
   // write to the ThingSpeak channel
    DEBUG_IOT_PRINTLN("IOT Channel updating.....");

@@ -109,7 +109,7 @@ void setup() {
   setupECH();
   setupNTP();
   setupWIFI();
-
+  setupIOT();
 
   // reset Wifi module reset button pushed
   WiFi.reconnect();

@@ -25,11 +25,11 @@ void processSyncEvent (NTPSyncEvent_t ntpEvent) {
 }
 
 void setupNTP(){
+  DEBUG_NTP_PRINTLN("setupNTP");
   NTP.onNTPSyncEvent ([](NTPSyncEvent_t event) {
     ntpEvent = event;
     syncEventTriggered = true;
   });
-  
 }
 void loopNTP(){
   
