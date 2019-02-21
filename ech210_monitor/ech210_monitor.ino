@@ -32,9 +32,9 @@ int8_t minutesTimeZone = 0;
 /******************/
 /* ECH management */
 /******************/
-#define ECH210BD_ADRESS 1
-#define MODBUS_RX_PIN D8
-#define MODBUS_TX_PIN D7
+#define ECH210BD_ADRESS 0x1
+#define MODBUS_RX_PIN 13
+#define MODBUS_TX_PIN 15
 int digitalInput;
 boolean compressorIn=false;
 boolean boilerIn=false;
@@ -49,7 +49,7 @@ boolean boilerOut=false;
 boolean alarmOut=false;
 
 Ticker echMgrTicker;
-int echMgrTickerPeriod = 10;
+int echMgrTickerPeriod = 60;
 int echSensorsReadstatus = 0;
 
 // Instantiate ModbusMaster object to target slave ID 1
@@ -79,9 +79,9 @@ void setupDS() {
 }
 void loopDS() {
   // store sensors data still available
-  if (isDataUpdated()) {
-    storeSensorData();
-  }
+//  if (isDataUpdated()) {
+//    storeSensorData();
+//  }
 }
 
 

@@ -16,7 +16,7 @@
 sint16 sd[6] = {-200,-200,-200,-200,-200,-200}; 
 boolean dataUpdated=false;
 
-boolean isDataUpdated(){
+boolean isDataUpdated() {
   return dataUpdated;
 }
 void resetDataUpdated(){
