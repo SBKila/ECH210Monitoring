@@ -1,4 +1,4 @@
-#define DEBUG_DAT
+/*#define DEBUG_DAT*/
 #ifdef DEBUG_DAT
  #define DEBUG_DAT_PRINT(x)  Serial.print (x)
  #define DEBUG_DAT_PRINTLN(x)  Serial.println (x)

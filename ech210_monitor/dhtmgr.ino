@@ -7,11 +7,21 @@
  #define DEBUG_DHT_PRINTLN(x)
 #endif
 
+boolean performDHTAnalyse = false;
 void setupDHT(){
   // Initialize temperature sensor
   dht.setup(DHT_PIN, DHTesp::DHT22);
   // read dht data each 20 seconde
   dhtTicker.attach(20, getDHT);
+}
+void onDHTTicker(){
+  performDHTAnalyse = true;
+}
+void loopDHT(){
+  if(performDHTAnalyse){
+    getDHT();
+    performDHTAnalyse = false;
+  }
 }
 
 void getDHT(){

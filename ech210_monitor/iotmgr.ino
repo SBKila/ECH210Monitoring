@@ -1,4 +1,4 @@
-#define DEBUG_IOT
+/*#define DEBUG_IOT*/
 #ifdef DEBUG_IOT
  #define DEBUG_IOT_PRINT(x)  Serial.print (x)
  #define DEBUG_IOT_PRINTLN(x)  Serial.println (x)
@@ -30,9 +30,12 @@ void sendToThingsSpeak2(){
   DEBUG_IOT_PRINTLN(rssi);
   ThingSpeak.setField(1, String(rssi));
   DEBUG_IOT_PRINTLN("getting Humidity");
-  ThingSpeak.setField(2, String(getHumidity(), 1));
+  //ThingSpeak.setField(2, String(getHumidity(), 1));
+  ThingSpeak.setField(2,getHumidity())
   DEBUG_IOT_PRINTLN("getting Temperature");
-  ThingSpeak.setField(3, String(getTemperature(), 1));
+  //ThingSpeak.setField(3, String(getTemperature(), 1));
+  ThingSpeak.setField(3, getTemperature());
+
   DEBUG_IOT_PRINTLN("getting SD1");
   setField(4, getSD1());
   DEBUG_IOT_PRINTLN("getting SD2");

@@ -33,8 +33,8 @@ int8_t minutesTimeZone = 0;
 /* ECH management */
 /******************/
 #define ECH210BD_ADRESS 0x1
-#define MODBUS_RX_PIN 13
-#define MODBUS_TX_PIN 15
+#define MODBUS_RX_PIN 14//13//14
+#define MODBUS_TX_PIN 12//15//12
 int digitalInput;
 boolean compressorIn=false;
 boolean boilerIn=false;
@@ -49,7 +49,7 @@ boolean boilerOut=false;
 boolean alarmOut=false;
 
 Ticker echMgrTicker;
-int echMgrTickerPeriod = 60;
+int echMgrTickerPeriod = 20;
 int echSensorsReadstatus = 0;
 
 // Instantiate ModbusMaster object to target slave ID 1
@@ -58,7 +58,7 @@ int echSensorsReadstatus = 0;
 /******************/
 /* DHT management */
 /******************/
-#define DHT_PIN D5
+#define DHT_PIN 05
 DHTesp dht; // Initialize DHT sensor
 Ticker dhtTicker;
 
@@ -85,6 +85,10 @@ void loopDS() {
 }
 
 
+
+/*******************/
+/* Main management */
+/*******************/
 #define DEBUG
 #ifdef DEBUG
 #define DEBUG_INIT(x) Serial.begin(x)
@@ -98,12 +102,33 @@ void loopDS() {
 #define DEBUG_PRINTLN_DEC(x)
 #endif
 
+Ticker aliveTicker;
+boolean perfomAlive = false;
+void loopAlive(){
+  
+  if(perfomAlive){
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(200);
+    digitalWrite(LED_BUILTIN, HIGH);
+    perfomAlive=false;
+  }
+}
+
+void onAliveTicker(){
+  DEBUG_PRINTLN("PIPI");
+  perfomAlive=true;
+}
 void setup() {
-  delay(5000);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(3000);
 
   DEBUG_INIT(115200);
   DEBUG_PRINTLN("application ech210 tracker starting");
-
+  
+  aliveTicker.attach(10, onAliveTicker);
+  
+  
   setupDS();
   setupDHT();
   setupECH();
@@ -113,14 +138,20 @@ void setup() {
 
   // reset Wifi module reset button pushed
   WiFi.reconnect();
-
+  digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
-
+  
+  loopAlive();
   loopNTP();
+
+  loopDHT();
+  loopECH();
+  
   loopIOT();
   loopDS();
+  
 
   // reset first Wifi Connection Flag
   if (wifiFirstConnected) {

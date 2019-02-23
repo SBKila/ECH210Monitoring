@@ -96,7 +96,7 @@ void ESP8266ModbusMaster232_init(uint8_t u8MBSlave) {
   pinMode(MODBUS_RX_PIN, INPUT);
   pinMode(MODBUS_TX_PIN, OUTPUT);
   _u8SerialPort = 0;
-  DEBUG_MOD_PRINT_NUM(u8MBSlave,HEX);
+  //DEBUG_MOD_PRINT_NUM(u8MBSlave,HEX);
   _u8MBSlave = u8MBSlave;
 }
 
@@ -253,16 +253,16 @@ uint8_t ModbusMasterTransaction(uint8_t u8MBFunction)
 
   
   // wait until modbus frame arrive
-  int val = 0xFF;
+  int val = swSer.read();
   long cont = 0;
   while ((val != _u8MBSlave) && (cont < 1000)) {
-    val = swSer.read();
     delay(5);
     cont ++;
+    val = swSer.read();
   }
 
-  if (cont == 1000) {
-    DEBUG_MOD_PRINTLN("slave is nute");
+  if (cont == 100) {
+    DEBUG_MOD_PRINTLN("slave is mute");
     u8MBStatus = ku8MBResponseTimedOut;
   } else {
     DEBUG_MOD_PRINT_NUM(val, HEX);
