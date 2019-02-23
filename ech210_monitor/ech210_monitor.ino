@@ -115,7 +115,6 @@ void loopAlive(){
 }
 
 void onAliveTicker(){
-  DEBUG_PRINTLN("PIPI");
   perfomAlive=true;
 }
 void setup() {
