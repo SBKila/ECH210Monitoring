@@ -27,11 +27,11 @@ void loopDHT(){
 void getDHT(){
     DEBUG_DHT_PRINTLN("DHT getting DHT");
     DEBUG_DHT_PRINTLN("DHT getting Temperature");
-    int temperature = round(dht.getTemperature());
+    int temperature = round(dht.getTemperature()*10);
     DEBUG_DHT_PRINT(temperature);
     DEBUG_DHT_PRINTLN("°");
     DEBUG_DHT_PRINTLN("DHT getting Humidity");
-    int humidity = round(dht.getHumidity());
+    int humidity = round(dht.getHumidity()*10);
     DEBUG_DHT_PRINT(humidity);
     DEBUG_DHT_PRINTLN("%");
 

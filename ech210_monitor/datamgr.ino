@@ -10,10 +10,10 @@
  #define DEBUG_DAT_PRINT_DEC(x)
  #define DEBUG_DAT_PRINTLN_DEC(x)
 #endif
-#define DELTA_TEMP 1
-#define DELTA_HUMIDITY 5
-
-sint16 sd[6] = {-200,-200,-200,-200,-200,-200}; 
+#define DELTA_TEMP 10
+#define DELTA_HUMIDITY 50
+#define UNDEFINED -600
+sint16 sd[7] = {UNDEFINED,UNDEFINED,UNDEFINED,UNDEFINED,UNDEFINED,UNDEFINED,UNDEFINED}; 
 boolean dataUpdated=false;
 
 boolean isDataUpdated() {
@@ -26,7 +26,7 @@ void resetDataUpdated(){
 void setSD(short index,sint16 value,int delta = DELTA_TEMP){
   DEBUG_DAT_PRINT("SD");
   DEBUG_DAT_PRINT(1+index);
-  if((-200==sd[index]) || ((abs(sd[index]-value)>delta))){
+  if( (UNDEFINED == sd[index]) || ((abs(sd[index]-value)>delta))){
     sd[index]=value;
     dataUpdated=true;
     
@@ -63,7 +63,7 @@ sint16 getSD4(){
    return sd[3];
 }
 void setTemperature(int value){
-  setSD(4,value,DELTA_TEMP);
+  setSD(4,value);
 }
 int getTemperature(){
   return sd[4];
@@ -73,4 +73,10 @@ void setHumidity(int value){
 }
 int getHumidity(){
   return sd[5];
+}
+void setDigitalOutput(sint16 value){
+  setSD(6,value);
+}
+sint16 getDigitalOutput() {
+   return sd[6];
 }

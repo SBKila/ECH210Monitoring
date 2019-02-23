@@ -143,17 +143,18 @@ BLINK
   result =  ESP8266ModbusMaster232_readHoldingRegisters(ADDR_DIGITAL_OUTPUT, 1);
   if(result!=0){
     DEBUG_ECH_PRINTLN("ECH Error reading ECHSensors");
-BLINK
+    BLINK
     return;
   }
-  digitalOutput=ESP8266ModbusMaster232_getResponseBuffer(0);
+  value=ESP8266ModbusMaster232_getResponseBuffer(0);
+  setDigitalOutput(value);
   ESP8266ModbusMaster232_clearResponseBuffer();
   delay(Mdelay);
-  compressorOut=(0 != (digitalOutput & MASK_DO_COMPRESSOR));
-  pumpOut=(0 != (digitalOutput & MASK_DO_PUMP));
-  valveOut=(0 != (digitalOutput & MASK_DO_REVERSAL));
-  boilerOut=(0 != (digitalOutput & MASK_DO_COMPRESSOR));
-  alarmOut=(0 != (digitalOutput & MASK_DO_ALARM));
+  compressorOut=(0 != (value & MASK_DO_COMPRESSOR));
+  pumpOut=(0 != (value & MASK_DO_PUMP));
+  valveOut=(0 != (value & MASK_DO_REVERSAL));
+  boilerOut=(0 != (value & MASK_DO_COMPRESSOR));
+  alarmOut=(0 != (value & MASK_DO_ALARM));
   DEBUG_ECH_PRINT("compressorOut:");
   DEBUG_ECH_PRINT(compressorOut);
   DEBUG_ECH_PRINT(" pumpOut:");
@@ -172,7 +173,7 @@ void loopECH() {
 }
 
 
-
+/*
 
 #define ADDR_FAILURE    1213
 //////////////////////////////////1213
@@ -188,4 +189,4 @@ void loopECH() {
 #define MASK_T_DEFROZE            0x08
 #define MASK_T_EXTERNAL           0x10
 #define MASK_T_INLET_HIGH         0x20
-#define MASK_T_COMPRESSOR         0x40
+#define MASK_T_COMPRESSOR         0x40*/
