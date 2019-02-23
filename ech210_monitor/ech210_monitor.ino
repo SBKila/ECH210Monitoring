@@ -102,14 +102,21 @@ void loopDS() {
 #define DEBUG_PRINTLN_DEC(x)
 #endif
 
+#define ALIVEBLINK digitalWrite(LED_BUILTIN, LOW);delay(100);digitalWrite(LED_BUILTIN, HIGH);
+
 Ticker aliveTicker;
 boolean perfomAlive = false;
 void loopAlive(){
   
   if(perfomAlive){
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(200);
-    digitalWrite(LED_BUILTIN, HIGH);
+
+    ALIVEBLINK
+    
+    if(WiFi.status()!=WL_CONNECTED){
+      delay(100);
+      ALIVEBLINK
+    }
+    
     perfomAlive=false;
   }
 }
