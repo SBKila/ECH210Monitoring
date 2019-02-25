@@ -1,0 +1,24 @@
+% Enter your MATLAB code below
+readChannelID = 612305;
+DOFieldID = 8;
+
+%Read data
+[data, timeStamps] = thingSpeakRead(readChannelID, 'Fields',[DOFieldID], 'NumDays', 1);
+
+%Format Data
+compressor = [];
+pump =  [];
+valve = [];
+boiler =  [];
+
+for i=1:length(data)
+    compressor = vertcat(compressor,[bitget(uint16(data(i)),9,'uint16')]);
+    pump = vertcat(pump,[bitget(uint16(data(i)),10,'uint16')]);
+    valve = vertcat(valve,[bitget(uint16(data(i)),11,'uint16')]);
+    boiler = vertcat(boiler,[bitget(uint16(data(i)),12,'uint16')]);
+end
+
+% Visualize Data
+T = table(timeStamps,pump,compressor,valve,boiler);
+TT = table2timetable(T);                                                 
+s = stackedplot(TT);

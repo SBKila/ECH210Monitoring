@@ -1,0 +1,32 @@
+% Enter your MATLAB code below
+% Channel ID to read data from 
+readChannelID = 612305; 
+
+SD3FieldID = 6; 
+SD4FieldID = 7; 
+TemperatureFieldID = 3; 
+SD1FieldID = 4; 
+SD2FieldID = 5; 
+HumidityFieldID = 2;
+
+% Read Data. 
+[data, timeStamps] = thingSpeakRead(readChannelID, 'Fields',[SD1FieldID, SD2FieldID, SD3FieldID, SD4FieldID,TemperatureFieldID,HumidityFieldID],'NumDays', 1);
+
+% Format data.
+temperatureData = data(:, 5)/10;
+humidityData = data(:, 6)/10;
+SD4Data = data(:, 4)/10;
+SD3Data = data(:, 3)/10;
+SD2Data = data(:, 2)/10;
+SD1Data = data(:, 1)/10;
+
+% Visualize Data
+yyaxis left
+plot(timeStamps, temperatureData,'-k',timeStamps, SD3Data,'-g',timeStamps, SD4Data,'-c',timeStamps, SD1Data, '-b',timeStamps, SD2Data, '-r');
+ylabel('T °c');
+
+yyaxis right
+plot(timeStamps, humidityData,':r');
+ylabel('%');
+
+legend({'Text'; 'SD3'; 'SD4'; 'SD1'; 'SD2';'Hext'},'Location','west','NumColumns',1);
