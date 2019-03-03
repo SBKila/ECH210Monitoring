@@ -29,6 +29,7 @@ int8_t timeZone = 1;
 int8_t minutesTimeZone = 0;
 
 
+
 /******************/
 /* ECH management */
 /******************/
@@ -49,7 +50,7 @@ boolean boilerOut=false;
 boolean alarmOut=false;
 
 Ticker echMgrTicker;
-int echMgrTickerPeriod = 20;
+int echMgrTickerPeriod = 15;
 int echSensorsReadstatus = 0;
 
 // Instantiate ModbusMaster object to target slave ID 1
@@ -58,7 +59,7 @@ int echSensorsReadstatus = 0;
 /******************/
 /* DHT management */
 /******************/
-#define DHT_PIN 05
+#define DHT_PIN 02
 DHTesp dht; // Initialize DHT sensor
 Ticker dhtTicker;
 
@@ -124,6 +125,7 @@ void loopAlive(){
 void onAliveTicker(){
   perfomAlive=true;
 }
+
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);

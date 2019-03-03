@@ -34,9 +34,9 @@ void sendToThingsSpeak2() {
   DEBUG_IOT_PRINTLN(rssi);
   ThingSpeak.setField(1, String(rssi));
   DEBUG_IOT_PRINTLN("getting Humidity");
-  ThingSpeak.setField(2,getHumidity());
+  setField(2, getHumidity());
   DEBUG_IOT_PRINTLN("getting Temperature");
-  ThingSpeak.setField(3, getTemperature());
+  setField(3, getTemperature());
 
   DEBUG_IOT_PRINTLN("getting SD1");
   setField(4, getSD1());

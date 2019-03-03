@@ -10,10 +10,10 @@
  #define DEBUG_DAT_PRINT_DEC(x)
  #define DEBUG_DAT_PRINTLN_DEC(x)
 #endif
-#define DELTA_TEMP 10
-#define DELTA_HUMIDITY 50
+#define DELTA_TEMP 5
+#define DELTA_HUMIDITY 10
 #define UNDEFINED -600
-sint16 sd[7] = {UNDEFINED,UNDEFINED,UNDEFINED,UNDEFINED,UNDEFINED,UNDEFINED,UNDEFINED}; 
+sint16 sd[8] = {UNDEFINED,UNDEFINED,UNDEFINED,UNDEFINED,UNDEFINED,UNDEFINED,UNDEFINED,UNDEFINED}; 
 boolean dataUpdated=false;
 
 boolean isDataUpdated() {
@@ -21,6 +21,20 @@ boolean isDataUpdated() {
 }
 void resetDataUpdated(){
   dataUpdated=false;
+}
+
+void setValue(short index,sint16 value){
+  DEBUG_DAT_PRINT("SD");
+  DEBUG_DAT_PRINT(1+index);
+  if( (UNDEFINED == sd[index]) || (sd[index] != value)){
+    sd[index]=value;
+    dataUpdated=true;
+    
+    DEBUG_DAT_PRINT(" updated to ");
+    DEBUG_DAT_PRINTLN_DEC(value);
+  } else {
+    DEBUG_DAT_PRINTLN(" not updated.");
+  }
 }
 
 void setSD(short index,sint16 value,int delta = DELTA_TEMP){
@@ -75,8 +89,16 @@ int getHumidity(){
   return sd[5];
 }
 void setDigitalOutput(sint16 value){
-  setSD(6,value);
+  setValue(6,value);
+  //setValue(6,((value&0xFF00)&&(sd[6]&0x00FF)));
 }
 sint16 getDigitalOutput() {
    return sd[6];
+}
+void setDigitalInput(sint16 value){
+  setValue(7,value);
+  //setValue(6,(((value>>8)&0x00FF)&&(sd[6]&0xFF00)));
+}
+sint16 getDigitalInput() {
+   return sd[7];
 }

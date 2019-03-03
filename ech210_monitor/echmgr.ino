@@ -13,10 +13,13 @@
 
 #define BLINK for(int i=0;i<5;i++){digitalWrite(LED_BUILTIN, LOW);delay(50);digitalWrite(LED_BUILTIN, HIGH);delay(50);}
 
-#define TP_WATERIN 1135
-#define TP_WATEROUT 1137
-#define TP_CONDENSOR 1139
-#define TP_OUTDOOR 1141
+#define ADDR_TP_WATERIN 1135
+#define ADDR_TP_WATEROUT 1137
+#define ADDR_TP_CONDENSOR 1139
+#define ADDR_TP_OUTDOOR 1141
+#define TP_1 1205
+#define ADDR_2 1188
+#define ADDR_3 3351
 
 #define ADDR_DIGITAL_INPUT 1124
 #define MASK_DI_COMPRESSOR   0x40
@@ -26,7 +29,7 @@
 #define MASK_DI_ONOFFSTANDBY 0x20
 
 
-#define ADDR_DIGITAL_OUTPUT    1188
+#define ADDR_DIGITAL_OUTPUT    1189
 #define MASK_DO_COMPRESSOR   0x01
 #define MASK_DO_PUMP         0x02
 #define MASK_DO_REVERSAL     0x04
@@ -58,9 +61,9 @@ void read_EchSensors() {
   sint16 value;
  
   DEBUG_ECH_PRINTLN("ECH Reading Analog Input ");
-  int result = ESP8266ModbusMaster232_readHoldingRegisters(TP_WATERIN, 1);
+  int result = ESP8266ModbusMaster232_readHoldingRegisters(ADDR_TP_WATERIN, 1);
   if(result!=0){
-    DEBUG_ECH_PRINTLN(" ECH Error reading TP_WATERIN");
+    DEBUG_ECH_PRINTLN(" ECH Error reading ADDR_TP_WATERIN");
     BLINK
     return;
   }
@@ -72,9 +75,9 @@ void read_EchSensors() {
   delay(Mdelay);
   
 
-  result =  ESP8266ModbusMaster232_readHoldingRegisters(TP_WATEROUT, 1);
+  result =  ESP8266ModbusMaster232_readHoldingRegisters(ADDR_TP_WATEROUT, 1);
   if(result!=0){
-    DEBUG_ECH_PRINTLN(" ECH Error reading TP_WATEROUT");
+    DEBUG_ECH_PRINTLN(" ECH Error reading ADDR_TP_WATEROUT");
     BLINK
     return;
   }
@@ -86,9 +89,9 @@ void read_EchSensors() {
   delay(Mdelay);
   
 
-  result =  ESP8266ModbusMaster232_readHoldingRegisters(TP_CONDENSOR, 1);
+  result =  ESP8266ModbusMaster232_readHoldingRegisters(ADDR_TP_CONDENSOR, 1);
   if(result!=0){
-    DEBUG_ECH_PRINTLN(" ECH Error reading TP_CONDENSOR");
+    DEBUG_ECH_PRINTLN(" ECH Error reading ADDR_TP_CONDENSOR");
 BLINK
     return;
   }
@@ -100,9 +103,9 @@ BLINK
   delay(Mdelay); 
   
 
-  result =  ESP8266ModbusMaster232_readHoldingRegisters(TP_OUTDOOR, 1);
+  result =  ESP8266ModbusMaster232_readHoldingRegisters(ADDR_TP_OUTDOOR, 1);
   if(result!=0){
-    DEBUG_ECH_PRINTLN(" ECH Error reading TP_OUTDOOR");
+    DEBUG_ECH_PRINTLN(" ECH Error reading ADDR_TP_OUTDOOR");
  BLINK
     return;
   }
@@ -121,23 +124,21 @@ BLINK
 BLINK
     return;
   }
-  digitalInput=ESP8266ModbusMaster232_getResponseBuffer(0);
+  value=ESP8266ModbusMaster232_getResponseBuffer(0);
+  setDigitalInput(value);
   ESP8266ModbusMaster232_clearResponseBuffer();
   delay(Mdelay);
 
-  compressorIn=(0 != (digitalInput & MASK_DI_COMPRESSOR));
-  boilerIn=(0 != (digitalInput & MASK_DI_BOILER));
-  pumpIn=(0 != (digitalInput & MASK_DI_PUMP));
-  warmcoolIn=(0 != (digitalInput & MASK_DI_WARMCOOL));
-  onstandbyIn=(0 != (digitalInput & MASK_DO_REVERSAL));
   DEBUG_ECH_PRINT("compressorIn:");
-  DEBUG_ECH_PRINT(compressorIn);
+  DEBUG_ECH_PRINT((0 != (digitalInput & MASK_DI_COMPRESSOR)));
   DEBUG_ECH_PRINT(" boilerIn:");
-  DEBUG_ECH_PRINT(boilerIn);
+  DEBUG_ECH_PRINT((0 != (digitalInput & MASK_DI_BOILER)));
+  DEBUG_ECH_PRINT(" pumpIn:");
+  DEBUG_ECH_PRINT((0 != (digitalInput & MASK_DI_PUMP)));
   DEBUG_ECH_PRINT(" warmcoolIn:");
-  DEBUG_ECH_PRINT(warmcoolIn);
+  DEBUG_ECH_PRINT((0 != (digitalInput & MASK_DI_WARMCOOL)));
   DEBUG_ECH_PRINT(" onstandbyIn:");
-  DEBUG_ECH_PRINTLN(onstandbyIn);
+  DEBUG_ECH_PRINTLN((0 != (digitalInput & MASK_DO_REVERSAL)));
   
   DEBUG_ECH_PRINTLN("ECH Reading DigitalOutput ");
   result =  ESP8266ModbusMaster232_readHoldingRegisters(ADDR_DIGITAL_OUTPUT, 1);
@@ -150,19 +151,17 @@ BLINK
   setDigitalOutput(value);
   ESP8266ModbusMaster232_clearResponseBuffer();
   delay(Mdelay);
-  compressorOut=(0 != (value & MASK_DO_COMPRESSOR));
-  pumpOut=(0 != (value & MASK_DO_PUMP));
-  valveOut=(0 != (value & MASK_DO_REVERSAL));
-  boilerOut=(0 != (value & MASK_DO_COMPRESSOR));
-  alarmOut=(0 != (value & MASK_DO_ALARM));
+
   DEBUG_ECH_PRINT("compressorOut:");
-  DEBUG_ECH_PRINT(compressorOut);
-  DEBUG_ECH_PRINT(" pumpOut:");
-  DEBUG_ECH_PRINT(pumpOut);
-  DEBUG_ECH_PRINT(" valveOut:");
-  DEBUG_ECH_PRINT(valveOut);
-  DEBUG_ECH_PRINT(" valveOut:");
-  DEBUG_ECH_PRINTLN(valveOut);
+  DEBUG_ECH_PRINT((0 != (value & MASK_DO_COMPRESSOR)));
+  DEBUG_ECH_PRINT("pumpOut:");
+  DEBUG_ECH_PRINT((0 != (value & MASK_DO_PUMP)));
+  DEBUG_ECH_PRINT("valveOut:");
+  DEBUG_ECH_PRINT((0 != (value & MASK_DO_REVERSAL)));
+  DEBUG_ECH_PRINT("valveOut:");
+  DEBUG_ECH_PRINTLN((0 != (value & MASK_DO_COMPRESSOR)));
+  DEBUG_ECH_PRINT("alarmOut:");
+  DEBUG_ECH_PRINTLN((0 != (value & MASK_DO_ALARM)));
 }
 
 void loopECH() {

@@ -1,4 +1,4 @@
-/*#define DEBUG_WIFIMGR*/
+//#define DEBUG_WIFIMGR
 #ifdef DEBUG_WIFIMGR
  #define DEBUG_WIFI_PRINT(x)  Serial.print (x)
  #define DEBUG_WIFI_PRINTLN(x)  Serial.println (x)
