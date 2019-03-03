@@ -1,0 +1,577 @@
+<!-- saved from url=(0048)http://stephane.blanc.free.fr/echmonitoring.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="http://code.highcharts.com/stock/highstock.js"></script>
+    <script src="http://code.highcharts.com/stock/modules/exporting.js"></script>
+
+    <script type="text/javascript">
+      
+      // Webpage Javascript to chart multiple ThingSpeak channels on two axis with navigator, load historical data, and export cvs data.
+      // Public Domain, by turgo.
+      //  The charting library is called HighStock.  It is awesome!  HighSoft, the owners say, 
+      //   "Do you want to use Highstock for a personal or non-profit project? Then you can use Highchcarts for 
+      //   free under the  Creative Commons Attribution-NonCommercial 3.0 License. "
+var dynamicChart;
+var channelsLoaded = 0;
+// put your ThingSpeak Channel#, Channel Name, and API keys here.
+// fieldList shows which field you want to load, and which axis to display that field on, 
+// the 'T' Temperature left axis, or the 'O' Other right axis.
+var fieldList = [	{field:2,axis:'H',name:'Hygrometry',type:'spline'},
+					{field:3,axis:'T',name:'Temperature',type:'spline'},
+					{field:4,axis:'T',name:'SD1',type:'spline'},
+					{field:5,axis:'T',name:'SD2',type:'spline'},
+					{field:6,axis:'T',name:'SD3',type:'spline'},
+					{field:7,axis:'T',name:'SD4',type:'spline'},
+					{field:8,axis:'H',name:'Valve', type: 'spline', mask:0x0400, offset: 0},
+					{field:8,axis:'H',name:'Comp', type: 'spline', mask:0x0100, offset: 10}];
+
+var channelKeys =[];
+channelKeys.push({channelNumber:612305, name:'Ech Monitor Env',key:'XXXXXXXXXXXXXXXX',fieldList:[{field:2,axis:'H'},{field:3,axis:'T'},{field:4,axis:'T'},{field:5,axis:'T'},{field:6,axis:'T'},{field:7,axis:'T'},{field:8,axis:'H'}]});
+
+var seriesData= [];
+    
+// user's timezone offset
+var myOffset = new Date().getTimezoneOffset();
+
+// converts date format from JSON
+function getChartDate(d) {
+    // get the data using javascript's date object (year, month, day, hour, minute, second)
+    // months in javascript start at 0, so remember to subtract 1 when specifying the month
+    // offset in minutes is converted to milliseconds and subtracted so that chart's x-axis is correct
+    return Date.UTC(d.substring(0,4), d.substring(5,7)-1, d.substring(8,10), d.substring(11,13), d.substring(14,16), d.substring(17,19)) - (myOffset * 60000);
+}
+
+      // Hide all series, via 'Hide All' button.  Then user can click on serries name in legent to show series of interest.      
+function HideAll(){
+  for (var index=0; index<dynamicChart.series.length; index++)  // iterate through each series
+  { 
+    if (dynamicChart.series[index].name == 'Navigator')
+      continue;
+    dynamicChart.series[index].hide();
+    //window.console && console.log('Series Number:',index,' Name:',dynamicChart.series[index].name);
+  }
+  //});
+            
+}
+
+// create the chart when all data is loaded
+ function createChart(fieldList) {
+	Highcharts.theme = {
+    colors: ['#2b908f', '#90ee7e', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066',
+        '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
+    chart: {
+        backgroundColor: {
+            linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+            stops: [
+                [0, '#2a2a2b'],
+                [1, '#3e3e40']
+            ]
+        },
+        style: {
+            fontFamily: '\'Unica One\', sans-serif'
+        },
+        plotBorderColor: '#606063'
+    },
+    title: {
+        style: {
+            color: '#E0E0E3',
+            textTransform: 'uppercase',
+            fontSize: '20px'
+        }
+    },
+    subtitle: {
+        style: {
+            color: '#E0E0E3',
+            textTransform: 'uppercase'
+        }
+    },
+    xAxis: {
+        gridLineColor: '#707073',
+        labels: {
+            style: {
+                color: '#E0E0E3'
+            }
+        },
+        lineColor: '#707073',
+        minorGridLineColor: '#505053',
+        tickColor: '#707073',
+        title: {
+            style: {
+                color: '#A0A0A3'
+
+            }
+        }
+    },
+    yAxis: {
+        gridLineColor: '#707073',
+        labels: {
+            style: {
+                color: '#E0E0E3'
+            }
+        },
+        lineColor: '#707073',
+        minorGridLineColor: '#505053',
+        tickColor: '#707073',
+        tickWidth: 1,
+        title: {
+            style: {
+                color: '#A0A0A3'
+            }
+        }
+    },
+    tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        style: {
+            color: '#F0F0F0'
+        }
+    },
+    plotOptions: {
+        series: {
+            dataLabels: {
+                color: '#B0B0B3'
+            },
+            marker: {
+                lineColor: '#333'
+            }
+        },
+        boxplot: {
+            fillColor: '#505053'
+        },
+        candlestick: {
+            lineColor: 'white'
+        },
+        errorbar: {
+            color: 'white'
+        }
+    },
+    legend: {
+        itemStyle: {
+            color: '#E0E0E3'
+        },
+        itemHoverStyle: {
+            color: '#FFF'
+        },
+        itemHiddenStyle: {
+            color: '#606063'
+        }
+    },
+    credits: {
+        style: {
+            color: '#666'
+        }
+    },
+    labels: {
+        style: {
+            color: '#707073'
+        }
+    },
+
+    drilldown: {
+        activeAxisLabelStyle: {
+            color: '#F0F0F3'
+        },
+        activeDataLabelStyle: {
+            color: '#F0F0F3'
+        }
+    },
+
+    navigation: {
+        buttonOptions: {
+            symbolStroke: '#DDDDDD',
+            theme: {
+                fill: '#505053'
+            }
+        }
+    },
+
+    // scroll charts
+    rangeSelector: {
+        buttonTheme: {
+            fill: '#505053',
+            stroke: '#000000',
+            style: {
+                color: '#CCC'
+            },
+            states: {
+                hover: {
+                    fill: '#707073',
+                    stroke: '#000000',
+                    style: {
+                        color: 'white'
+                    }
+                },
+                select: {
+                    fill: '#000003',
+                    stroke: '#000000',
+                    style: {
+                        color: 'white'
+                    }
+                }
+            }
+        },
+        inputBoxBorderColor: '#505053',
+        inputStyle: {
+            backgroundColor: '#333',
+            color: 'silver'
+        },
+        labelStyle: {
+            color: 'silver'
+        }
+    },
+
+    navigator: {
+        handles: {
+            backgroundColor: '#666',
+            borderColor: '#AAA'
+        },
+        outlineColor: '#CCC',
+        maskFill: 'rgba(255,255,255,0.1)',
+        series: {
+            color: '#7798BF',
+            lineColor: '#A6C7ED'
+        },
+        xAxis: {
+            gridLineColor: '#505053'
+        }
+    },
+
+    scrollbar: {
+        barBackgroundColor: '#808083',
+        barBorderColor: '#808083',
+        buttonArrowColor: '#CCC',
+        buttonBackgroundColor: '#606063',
+        buttonBorderColor: '#606063',
+        rifleColor: '#FFF',
+        trackBackgroundColor: '#404043',
+        trackBorderColor: '#404043'
+    },
+
+    // special colors for some of the
+    legendBackgroundColor: 'rgba(0, 0, 0, 0.5)',
+    background2: '#505053',
+    dataLabelsColor: '#B0B0B3',
+    textColor: '#C0C0C0',
+    contrastTextColor: '#F0F0F3',
+    maskColor: 'rgba(255,255,255,0.3)'
+};
+Highcharts.setOptions(Highcharts.theme);
+	// specify the chart options
+	var chartOptions = {
+		chart: {
+			renderTo: 'chart-container',
+			zoomType:'y',
+			events: {
+				load : function () {
+						window.console && console.log('Chart Loaded:');
+						setInterval(onRefreshChartTimer, 30000);
+				}/*,
+				redraw : function () {
+					 window.console && console.log('Chart redraw:');
+				}*/
+			}
+		},
+		colors: ['white','white','blue','red','green','cyan','grey','orange'],
+		rangeSelector: {
+			buttons: [{
+				count: 30,
+				type: 'minute',
+				text: '30M'
+			}, {
+				count: 2,
+				type: 'hour',
+				text: '2H'
+			}, {
+				count: 6,
+				type: 'hour',
+				text: '6H'
+			}, {
+				count: 12,
+				type: 'hour',
+				text: '12H'
+			}, {
+				count: 1,
+				type: 'day',
+				text: 'D'
+			}, {
+				count: 1,
+				type: 'week',
+				text: 'W'
+			}, {
+				count: 1,
+				type: 'month',
+				text: 'M'
+			}, {
+				count: 1,
+				type: 'year',
+				text: 'Y'
+			}, {
+				type: 'all',
+				text: 'All'
+			}],
+			inputEnabled: true,
+			selected: 4
+		},
+		title: {
+				text: ''
+			},
+		plotOptions: {
+			line: {
+				gapSize:5
+			},
+			series: {
+				marker: {
+					radius: 2
+				},
+				animation: true,
+				step: false,
+				turboThrehold:1000,
+				borderWidth: 0
+			}
+		},
+		tooltip: {
+		  valueDecimals: 1,
+		  valueSuffix: '°C',
+		  xDateFormat:'%Y-%m-%d %1:%M:%S'
+		},
+		xAxis: {
+			type: 'datetime',
+			ordinal:false,
+			min: Date.UTC(2019,02,20),
+			dateTimeLabelFormats : {
+				hour: '%l %p',
+				minute: '%l:%M %p'
+			},
+			title: {
+				text: 'test'
+			}
+		},
+		yAxis: [{
+					title: {
+						text: 'Temperature °C'
+					},
+					id: 'T',
+					max: 40,
+					min: -20
+				},{
+					title: {
+						text: 'Hygrometry'
+					},
+					opposite: true,
+					id: 'H',
+					max: 100,
+					min: 0
+				}],
+		exporting: {
+			enabled: true,
+			csv: {
+					dateFormat: '%d/%m/%Y %I:%M:%S %p'
+			}
+		},
+		legend: {
+			enabled: true
+		},
+		navigator: {
+			baseSeries: 0,  //select which series to show in history navigator, First series is 0
+			series: {
+				includeInCSVExport: false
+			}
+		},
+		
+		series: []
+    }
+	
+	for (var fieldIndex=0; fieldIndex<fieldList.length; fieldIndex++)  // add each field
+    {
+      chartOptions.series.push({data:fieldList[fieldIndex].data,
+								index:fieldList[fieldIndex].series,
+                                yAxis:fieldList[fieldIndex].axis,
+                                type: fieldList[fieldIndex].type,
+                                name: fieldList[fieldIndex].name});
+    }
+
+	chartOptions.series[0].dashStyle='shortdot';
+
+	// set chart labels here so that decoding occurs properly
+	//chartOptions.title.text = data.channel.name;
+	chartOptions.xAxis.title.text = 'Date';
+
+	// draw the chart
+	dynamicChart = new Highcharts.StockChart(chartOptions);
+	
+	
+	
+	// update series number to account for the navigator series (The historical series at the bottom) which is the first series.
+    for (var fieldIndex=0; fieldIndex< fieldList.length; fieldIndex++)  // and each field
+    {
+      for (var seriesIndex=0; seriesIndex<dynamicChart.series.length; seriesIndex++)  // compare each series name
+      {
+        if (dynamicChart.series[seriesIndex].name == fieldList[fieldIndex].name)
+        {
+          fieldList[fieldIndex].series = seriesIndex;
+        }
+      }
+    }
+
+ }
+
+
+var lastLoadedDate = new Date();
+var oldsetLoadedData = new Date();    
+//  This is where the chart is generated.
+$(document).ready(function() 
+{
+	//window.console && console.log('Testing console');
+	loadHistorycalChannel(0,612305,'', fieldList, lastLoadedDate, onFirstLoaded);
+});
+
+function onFirstLoaded(fieldList, oldestLoadedDate, youngtestLoadedDate) {
+	createChart(fieldList);
+	oldsetLoadedData = oldestLoadedDate;
+	loadMoreHistory();
+}
+function loadMoreHistory(){
+	historyToLoad = 4;
+	loadHistorycalChannel(0,612305,'',fieldList, oldsetLoadedData, onHistoryLoaded);
+}
+var historyToLoad=0;
+
+function onHistoryLoaded(fieldList, oldestLoadedDate, youngtestLoadedDate) {
+	
+	for (var fieldIndex=0; fieldIndex<fieldList.length; fieldIndex++) {
+		dynamicChart.series[fieldList[fieldIndex].series].setData(fieldList[fieldIndex].data,false);
+	}
+	oldsetLoadedData=oldestLoadedDate;
+	dynamicChart.redraw();
+	
+	if(--historyToLoad>0) loadHistorycalChannel(0,612305,'',fieldList, oldsetLoadedData, onHistoryLoaded);
+}
+
+
+function onRefreshChartTimer(){
+	loadChannel(0,612305,'',fieldList, lastLoadedDate, new Date(), onRefreshChartLoaded);
+}
+function onRefreshChartLoaded(fieldList, oldestLoadedDate, youngtestLoadedDate){
+	lastLoadedDate=youngtestLoadedDate;
+	window.console && console.log('onRefreshChartLoaded');
+	for (var fieldIndex=0; fieldIndex<fieldList.length; fieldIndex++) {
+		dynamicChart.series[fieldList[fieldIndex].series].setData(fieldList[fieldIndex].data,false);
+	}
+	dynamicChart.redraw();
+}
+
+ 
+// load next 8000 points from a ThingSpeak channel and addPoints to a series
+async function loadHistorycalChannel(sentChannelIndex,channelNumber,key,sentFieldList, first_Date, callback) {
+   var fieldList= sentFieldList;
+   var channelIndex = sentChannelIndex;
+   var begin_Date = new Date(first_Date);
+  
+   
+   begin_Date.setHours(begin_Date.getHours()-6);
+   
+   loadChannel(sentChannelIndex,channelNumber,key,sentFieldList, begin_Date, first_Date, callback);
+}
+      
+// load next 8000 points from a ThingSpeak channel and addPoints to a series
+async function loadChannel(sentChannelIndex,channelNumber,key,sentFieldList, begin_Date, end_Date, callback) {
+   var fieldList= sentFieldList;
+   var channelIndex = sentChannelIndex;
+   
+   //window.console && console.log('end  date: %s',end_Date.toJSON());
+   //window.console && console.log('start date:',begin_Date.toJSON());
+   
+   // get the Channel data with a webservice call
+ 	$.getJSON('https://thingspeak.com/channels/'+channelNumber+'/feed.json?callback=?&amp;offset=0&amp;start='+begin_Date.toJSON()+';end='+end_Date.toJSON()+';key='+key, function(data) {
+			// if no access
+		if (data == '-1') {
+			$('#chart-container').append('This channel is not public.  To embed charts, the channel must be public or a read key must be specified.');
+			window.console && console.log('Thingspeak Data Loading Error');
+		}
+		if(data.feeds.length != 0){
+			
+			for (var fieldIndex=0; fieldIndex<fieldList.length; fieldIndex++) { // iterate through each field 
+				if(typeof fieldList[fieldIndex] === "undefined") fieldList[fieldIndex] = {data:[]};
+				if(typeof fieldList[fieldIndex].data === "undefined") fieldList[fieldIndex].data =[];
+				for (var h=0; h<data.feeds.length; h++){  // iterate through each feed (data point)
+					var p = []//new Highcharts.Point();
+					var fieldStr = "data.feeds["+h+"].field"+fieldList[fieldIndex].field;
+					var v = eval(fieldStr);
+					p[0] = getChartDate(data.feeds[h].created_at);
+					if(fieldIndex<6) {
+						p[1] = parseInt(v)/10;
+						if (!isNaN(parseInt(v))) { fieldList[fieldIndex].data.push(p); }
+					} else  {
+						p[1] = fieldList[fieldIndex].offset+(((parseInt(v) & fieldList[fieldIndex].mask) != 0)?10:0);
+						if (!isNaN(parseInt(v))) { fieldList[fieldIndex].data.push(p); }
+					}
+				
+				}
+				if(fieldList[fieldIndex].name == undefined)
+					fieldList[fieldIndex].name = eval("data.channel.field"+fieldList[fieldIndex].field);
+				fieldList[fieldIndex].data.sort(function(a,b){return a[0]-b[0]});
+			}
+			callback(fieldList,begin_Date,end_Date);
+		}
+		
+	});
+}
+
+
+
+
+  </script>
+  <style>
+  .ph-float {
+  
+  float: left;
+  width: 22%;
+  padding: 10px;  
+  padding-top: 50px;  
+  text-align: center;
+
+}
+  .ph-button {
+	
+    border-style: solid;
+    border-width: 0px 0px 3px;
+    box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.1) inset;
+    color: #FFFFFF;	   
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-block;
+    font-style: normal;
+    overflow: hidden;
+    text-align: center;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    transition: all 200ms ease-in-out 0s;
+    white-space: nowrap;	
+    font-family: "Gotham Rounded A","Gotham Rounded B",Helvetica,Arial,sans-serif;
+    font-weight: 700;	
+    padding: 10px 20px 10px;
+    font-size: 18px;
+	
+}
+/*Grey
+==========================*/
+.ph-btn-grey {
+
+     background-color: #C6CCD2;
+     border-color: #AAB3BB;
+}
+.ph-btn-grey:hover, .ph-btn-grey:focus, .ph-btn-grey:active {
+    background-color: #B8BFC7;
+    border-color: #AAB3BB; 
+}
+</style>
+    <title>PHR11 Monitoring</title>
+  </head>
+  <body style="background-color: #3e3e40">
+  <div id="chart-container" style="height: 90%; overflow: hidden;" data-highcharts-chart="0"></div>
+  <div id="below chart">
+  	<button class='ph-button ph-btn-grey' type="button" onClick="loadMoreHistory()">More history....</button>
+	</div>
+  
+
+</body></html>
