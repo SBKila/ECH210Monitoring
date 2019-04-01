@@ -17,6 +17,8 @@ first full fonctional release. Setting are hardcoded
   The WIFI connection
   The Thingspeak account
 
+# Hardware
+The present source code was validated on a NodeMcu v3 board
 
 # Installation
 ## ESP8266
