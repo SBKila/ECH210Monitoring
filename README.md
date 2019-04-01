@@ -22,11 +22,11 @@ first full fonctional release. Setting are hardcoded
 ## ESP8266
 Update secrets.h with your values,
 
-* ech210BAddress is the address of your ECH module modbus configuration
-* ssid is your WIFI network name
-* password is the password to be used to connect your WIFI
-* myChannelNumber is the thinkspeak Channel ID
-* myWriteAPIKey is the thingspeak "Write API Key" of your channel
+* **ech210BAddress** is the address of your ECH module modbus configuration
+* **ssid** is your WIFI network name
+* **password** is the password to be used to connect your WIFI
+* **myChannelNumber** is the thinkspeak Channel ID
+* **myWriteAPIKey** is the thingspeak "Write API Key" of your channel
 
 ## Thingspeak
 Create an acount on https://thingspeak.com/users/sign_up
