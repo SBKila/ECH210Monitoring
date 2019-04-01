@@ -18,7 +18,7 @@ first full fonctional release. Setting are hardcoded
   The Thingspeak account
 
 # Hardware
-The present source code was validated on a NodeMcu v3 board
+The present source code was validated on a NodeMcu v3 board and a DHT022 sensor.
 
 # Installation
 ## ESP8266
