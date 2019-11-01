@@ -18,10 +18,10 @@ first full fonctional release. Setting are hardcoded
   The Thingspeak account
 
 # Used library
-*     NtpClientLib by German Martin version 2.5.1
-*     DHT sensor library for ESPx by beegee_tokyo version 1.17.0
-*     ThingSpeak by MathWorks Version 1.5.0
-*     ESP8266 by ESP8266 community version 2.5.2
+* **NtpClientLib** by German Martin version **2.5.1**
+* **DHT sensor library for ESPx** by beegee_tokyo version **1.17.0**
+* **ThingSpeak** by MathWorks Version **1.5.0**
+* **ESP8266** by ESP8266 community version **2.5.2**
 
 # Hardware
 The present source code was validated on a NodeMcu v3 board and a DHT022 sensor.
