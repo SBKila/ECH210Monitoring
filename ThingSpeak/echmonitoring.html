@@ -1071,8 +1071,8 @@ Highcharts.setOptions(Highcharts.theme);
  }
 
 
-var lastLoadedDate = new Date();
-var oldsetLoadedData = new Date();    
+var lastLoadedDate;
+var oldsetLoadedData;    
 //  This is where the chart is generated.
 $(document).ready(function() 
 {
@@ -1081,19 +1081,32 @@ $(document).ready(function()
 	
 	
 	if(storedData){
+		
 		oldsetLoadedData = new Date(storedData);
 		lastLoadedDate = oldsetLoadedData;
 		youngtestLoadedDate =  new Date(localStorage.getItem("youngtestLoadedDate"));
-		fieldList = JSON.parse(LZString.decompress(localStorage.getItem("monitoringData")));	
-		createChart(fieldList);
+		try {
+			var loadedFieldList = JSON.parse(LZString.decompress(localStorage.getItem("monitoringData")));
+			if(loadedFieldList) fieldList = loadedFieldList;
+		} catch(error) {
+			console.log(error);
+			localStorage.clear();	
+			oldsetLoadedData = new Date();
+			lastLoadedDate = new Date();			
+			loadHistorycalChannel(0,612305,'', fieldList, lastLoadedDate, onFirstLoaded);
+		}	
 		
-		for (var fieldIndex=0; fieldIndex<fieldList.length; fieldIndex++)
-			dynamicChart.series[fieldList[fieldIndex].series].setData(fieldList[fieldIndex].data,false);
+		createChart(fieldList);
+			for (var fieldIndex=0; fieldIndex<fieldList.length; fieldIndex++)
+				dynamicChart.series[fieldList[fieldIndex].series].setData(fieldList[fieldIndex].data,false);
 
-		dynamicChart.redraw();
-		onRefreshChartTimer();
+			dynamicChart.redraw();
+			onRefreshChartTimer();
+		
 		
 	} else {
+		oldsetLoadedData = new Date();
+		lastLoadedDate = new Date();
 		loadHistorycalChannel(0,612305,'', fieldList, lastLoadedDate, onFirstLoaded);
 	}
 	
@@ -1217,39 +1230,36 @@ async function loadChannel(sentChannelIndex,channelNumber,key,sentFieldList, beg
 var setupDateChange = getChartDate("2020-01-01T14:00:00+01:00");
 function computeDefrostSignal(d,v){
 	if(d<setupDateChange){
-		return computeDefrostSignalA(v);
+		return computeDeforstSetPoint(0,-15,10,-20,v);
 	} else {
-		return computeDefrostSignalB(v);
+		return computeDeforstSetPoint(0,-3,-10,10,v);
 	}
 }
 
-function computeDefrostSignalB(v){
-var D2 = 0;
-var D11 = -3;
-var D12 = -10;
-var D13 = 10;
-	sd4 = parseInt(v)/10;
-	if(sd4>(D12+D13)){
-		return D2+D11;
-	} else if(sd4<D12){
-		return D2;
+function computeDeforstSetPoint(D2,D11,D12,D13,v){
+	var sd4 = parseInt(v)/10;
+	if(D11<0){
+		if(D13>0) {
+			if(sd4>(D12+D13)){
+				return D2+D11;
+			} else if(sd4<D12){
+				return D2;
+			} else {
+				return D2+((D11/D13)*(sd4-D12));
+			}
+		} else {
+			if(sd4<(D12+D13)){
+				return D2+D11;
+			} else if(sd4>D12){
+				return D2;
+			} else {
+				return D2+((D11/D13)*(sd4-D12));
+			}
+		}
 	} else {
-		return D2+((D11/D13)*(sd4-D12));
-	}
-}
-function computeDefrostSignalA(v){
-	var D2 = 0;
-	var D11 = -15;
-	var D12 = 10;
-	var D13 = -20;
-
-	sd4 = parseInt(v)/10;
-	if(sd4<(D12+D13)){
-		return D2+D11;
-	} else if(sd4>D12){
-		return D2;
-	} else {
-		return D2+((D11/D13)*(sd4-D12));
+		if(D13>0) {
+		} else {
+		}
 	}
 }
 
